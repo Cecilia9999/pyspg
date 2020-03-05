@@ -1,2 +1,10 @@
 # pyspg
-python3 version of spglib from atztogo
+
+python3 version of spglib 
+
+##  Functions
+writing....
+
+### Author
+
+(https://github.com/Cecilia9999/)
