@@ -236,7 +236,7 @@ def GetConvSymm(center, trans_mat, symmetry):
 
 def GetSpaceData(hall_num):
     spgtype = None
-    with open("newspg.csv", "rt") as CF:
+    with open("../supports/newspg.csv", "rt") as CF:
         cr = csv.reader(CF)
         for i, j in enumerate(cr):
             if i == hall_num:

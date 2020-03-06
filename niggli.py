@@ -213,10 +213,9 @@ def Niggli(latt):
     return None
 
 
-'''
-latt, pos, numb, dictp = delaunay.StructRead()
-flag, reduc_b, delauP = delaunay.Delaunay(latt, -1)
-print('red', reduc_b)
-A = Niggli(reduc_b)
-print(A)
-'''
+def test_niggli():
+    latt, pos, numb, dictp = delaunay.StructRead()
+    flag, reduc_b, delauP = delaunay.Delaunay(latt, -1)
+    print('red', reduc_b)
+    A = Niggli(reduc_b)
+    print(A)

@@ -507,68 +507,70 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
         return None, None, None
 
 
-filename = input("Please input the POSCAR name: ")
-filename = './testfile/' + filename
-o_latt, o_pos, o_num, dictp = StructRead(filename)
-prim_latt, p_num, p_pos, is_prim = primitive.GetPrimLattice(o_latt, o_pos, o_num, dictp)
-symmetry, pgt_type, axis = pointgp.GetPointGroup(prim_latt, p_num, p_pos, dictp)  # // pgt_type = [pgnum, pgtable, symbol, schoenf, holo, Laue]
-spgnum, hallnum, origin, new_latt, trans_matrix, center = spgroup.GetSpaceGroup(prim_latt, symmetry, pgt_type, axis)
+if __name__ = "__main__":
+    filename = input("Please input the POSCAR name: ")
+    filename = './testfile/' + filename
+    o_latt, o_pos, o_num, dictp = StructRead(filename)
+    prim_latt, p_num, p_pos, is_prim = primitive.GetPrimLattice(o_latt, o_pos, o_num, dictp)
+    symmetry, pgt_type, axis = pointgp.GetPointGroup(prim_latt, p_num, p_pos, dictp)  
+    # // pgt_type = [pgnum, pgtable, symbol, schoenf, holo, Laue]
+    spgnum, hallnum, origin, new_latt, trans_matrix, center = spgroup.GetSpaceGroup(prim_latt, symmetry, pgt_type, axis)
 
-print('spg number: ', spgnum)
-print('hall num: ', hallnum)
-print('origin: ', origin)
-print('bravais lattice:\n', new_latt)
-#print('trans matrix:\n', trans_matrix)
-print('point group: ', pgt_type[0])
-print('schoenf symbol: ', pgt_type[2])
-print('holohedry: ', pgt_type[3])
-print('laue: ', pgt_type[4])
+    print('spg number: {}\n'.format(spgnum))
+    print('hall num: {}\n'.format(hallnum))
+    print('origin: {}\n'.format(origin))
+    print('bravais lattice: {}\n'.format(new_latt))
+    #print('trans matrix:\n', trans_matrix)
+    print('point group: {}\n'.format(pgt_type[0]))
+    print('schoenf symbol: {}\n'.format(pgt_type[2]))
+    print('holohedry: {}\n'.format(pgt_type[3]))
+    print('laue: {}\n'.format(pgt_type[4]))
 
 
-if is_prim:
-    std_latt, std_num, std_pos = GetStandardCell(new_latt, p_pos, o_num, trans_matrix, center, is_prim, pgt_type, origin)
-    #std_latt, std_num, std_pos = GetStandardPos(new_latt, p_pos, o_num, trans_matrix, center, is_prim, origin)
-else:
-    trans_matrix2 = np.dot(np.transpose(np.dot(prim_latt, np.linalg.inv(o_latt))), trans_matrix)
-    std_latt, std_num, std_pos = GetStandardCell(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, pgt_type, origin)
-    #std_latt, std_num, std_pos = GetStandardPos(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, origin)
+    if is_prim:
+        std_latt, std_num, std_pos = GetStandardCell(new_latt, p_pos, o_num, trans_matrix, center, is_prim, pgt_type, origin)
+        #std_latt, std_num, std_pos = GetStandardPos(new_latt, p_pos, o_num, trans_matrix, center, is_prim, origin)
+    else:
+        trans_matrix2 = np.dot(np.transpose(np.dot(prim_latt, np.linalg.inv(o_latt))), trans_matrix)
+        std_latt, std_num, std_pos = GetStandardCell(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, pgt_type, origin)
+        #std_latt, std_num, std_pos = GetStandardPos(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, origin)
 
-print('lattice:\n', std_latt)
-print('numbers:\n', std_num)
-print('positions:\n', std_pos)
+    print('lattice: {}\n'.format(std_latt))
+    print('numbers: {}\n'.format(std_num))
+    print('positions: {}\n'.format(std_pos))
 
-output = filename + "-stand-test"
-with open(output, 'w') as ST:
-    ST.write("POSCAR-STAN\n" + "1.0\n")
-    for i in range(3):
-        for j in range(3):
-            ST.write(str('{:.10f}'.format(std_latt[i][j])) + ' ')
-        ST.write('\n')
+    output = filename + "-stand-test"
+    with open(output, 'w') as ST:
+        ST.write("POSCAR-STAN\n" + "1.0\n")
+        for i in range(3):
+            for j in range(3):
+                ST.write(str('{:.10f}'.format(std_latt[i][j])) + ' ')
+            ST.write('\n')
 
-    a = []
-    for i in std_num:
-        if i not in a:
-            ST.write("  " + i + " ")
-            a.append(i)
-    ST.write('\n')
-
-    b = []
-    count = 0
-    for j in a:
+        a = []
         for i in std_num:
-            if j == i:
-                count += 1
-        b.append(count)
-        count = 0
-
-    for i in b:
-        ST.write("  " + str(i) + " ")
-    ST.write('\n')
-
-    ST.write("Direct\n")
-
-    for i in std_pos:
-        for j in range(3):
-            ST.write("  " + str('{:.12f}'.format(i[j])) + " ")
+            if i not in a:
+                ST.write("  " + i + " ")
+                a.append(i)
         ST.write('\n')
-    ST.close()
+
+        b = []
+        count = 0
+        for j in a:
+            for i in std_num:
+                if j == i:
+                    count += 1
+            b.append(count)
+            count = 0
+
+        for i in b:
+            ST.write("  " + str(i) + " ")
+        ST.write('\n')
+
+        ST.write("Direct: \n")
+
+        for i in std_pos:
+            for j in range(3):
+                ST.write("  " + str('{:.12f}'.format(i[j])) + " ")
+            ST.write('\n')
+        ST.close()

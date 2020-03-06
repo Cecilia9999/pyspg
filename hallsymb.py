@@ -9,13 +9,8 @@ import csv
 import spglib
 
 
-def loadcsvfile():
-    with open("spg.csv", "rt") as CF:
-        cr = csv.reader(CF)
-        halls = [[col[4], col[6]] for col in cr]
-        #print(halls)
-        CF.close()
-    return halls
+
+E = np.identity(3)
 
 latt_sym = {
     'P': [[0, 0, 0]],
@@ -108,15 +103,21 @@ rot_mat = {
             [ 0, 1, 0 ] ]
     }
 
-#def generators():
-hall_symbols = loadcsvfile()
-#print(hall_symbols)
-E = np.identity(3)
 
+#hall_symbols = loadcsvfile()
+def loadcsvfile():
+    with open("../supports/spg.csv", "rt") as CF:
+        cr = csv.reader(CF)
+        halls = [[col[4], col[6]] for col in cr]
+        #print(halls)
+        CF.close()
+    return halls
+    
+    
 def LookHallSymbol(hallnum):
     #fulloper = []
     #for i in hall_symbols[hallnum-1]:
-
+    hall_symbols = loadcsvfile()
     sgnum = hall_symbols[hallnum-1][0]
     LNATV = hall_symbols[hallnum-1][1]
     oper = []
@@ -278,22 +279,6 @@ def mulGrouOper(GR, GT):      # recusive function
         GR, GT = mulGrouOper(GR, GT)
     return GR, GT
 
-'''
-L, V, eOper, R1, T1 = LookHallSymbol(408)
-#print(R1, T1)
-GR_111 = []
-GT_111 = []
-for r, t in zip(R1, T1):
-    GR, GT = mulGrouOper([r], [t])
-    #print(GR, GT)
-    for i in GR:
-        GR_111.append(i)
-    for j in GT:
-        GT_111.append(j)
-
-print(GR_111, GT_111)
-
-'''
 
 def GroupOperation(hallnum):
     L, V, eOper, R1, T1 = LookHallSymbol(hallnum)
@@ -346,52 +331,66 @@ def GroupOperation(hallnum):
 
     return GR_conv, GT_conv
 
-'''
-GR, GT = GroupOperation(244)  # get symmetry operations from hall symbol
-print('rotation: ')
-for i in GR:
-    print(i)
-print('translations: ')
-for i in GT:
-    print(i)
-'''
 
-# check operations of space group refering to spglib code
-count = 0
-for i in range(1, 531):
-    GR, GT = GroupOperation(i)
-    reference = spglib.get_symmetry_from_database(i)
-    a1 = [] # symmetry operations from spglib code
-    a2 = [] # symmetry operations from this code
-    for j1, j2 in zip(reference['rotations'], reference['translations']):
-        m = []
-        for k1 in j1:
-            m.append(list(k1))
-        a1.append([m, list(j2)])
 
-    for j1, j2 in zip(GR, GT):
-        m = []
-        for k1 in j1:
-            m.append(list(k1))
-        a2.append([m, list(j2)])
-    #print(a2)
+# check LookHallSymbol()
+def test_getInfoFromHallSym(num):
+    L, V, eOper, R1, T1 = LookHallSymbol(408)
+    #print(R1, T1)
+    GR_111 = []
+    GT_111 = []
+    for r, t in zip(R1, T1):
+        GR, GT = mulGrouOper([r], [t])
+        #print(GR, GT)
+        for i in GR:
+            GR_111.append(i)
+        for j in GT:
+            GT_111.append(j)
 
-    a = [m for m in a1 if m not in a2]
-    b = [n for n in a2 if n not in a1]
+    print(GR_111, GT_111)
 
-    if not ((a is not None) and (b is not None)):
-        print('error:', i)
-    else:
-        count = count + 1
-        #print('true')
-print(count)
 
-'''
-try:
+
+# get symmetry operations from hall symbol
+def test_symOperFromHallSym(num):
+    GR, GT = GroupOperation(num)  
+    print('rotation: ')
+    for i in GR:
+        print(i)
+    print('translations: ')
+    for i in GT:
+        print(i)
+
     
+    
+# check operations of space group refering to spglib code
+def teat_countAllOperations():
+    count = 0
+    for i in range(1, 531):
+        GR, GT = GroupOperation(i)
+        reference = spglib.get_symmetry_from_database(i)
+        a1 = [] # symmetry operations from spglib code
+        a2 = [] # symmetry operations from this code
+        for j1, j2 in zip(reference['rotations'], reference['translations']):
+            m = []
+            for k1 in j1:
+                m.append(list(k1))
+            a1.append([m, list(j2)])
 
-except:
-    print('error: ', i)
-else:
-    pass
-'''
+        for j1, j2 in zip(GR, GT):
+            m = []
+            for k1 in j1:
+                m.append(list(k1))
+            a2.append([m, list(j2)])
+        #print(a2)
+
+        a = [m for m in a1 if m not in a2]
+        b = [n for n in a2 if n not in a1]
+
+        if not ((a is not None) and (b is not None)):
+            print('error:', i)
+        else:
+            count = count + 1
+            #print('true')
+        print(count)
+

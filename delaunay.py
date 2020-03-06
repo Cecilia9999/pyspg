@@ -233,15 +233,16 @@ def ChangeOfBasis(coor, Q):     # // Q should be vertical vec
         tpos.append(tp)
     return tpos
 
-'''/// test
-latt, pos, num, dictp = StructRead()
-a, b, p = Delaunay(latt, -1)
-print('delaunay:\n', b)
-print('delaunay pos\n', ChangeOfBasis(pos, np.linalg.inv(p)))
-c = spglib.delaunay_reduce(latt)
-print('spgresult:\n', c)
-print('volume spg:\n', abs(np.linalg.det(c)))
-d, x2, x3 = spglib.find_primitive((latt, pos, num))
-print(d)
 
-/// test '''
+
+#  test
+def test_delaunay():
+    latt, pos, num, dictp = StructRead()
+    a, b, p = Delaunay(latt, -1)
+    print('delaunay:\n', b)
+    print('delaunay pos\n', ChangeOfBasis(pos, np.linalg.inv(p)))
+    c = spglib.delaunay_reduce(latt)
+    print('spgresult:\n', c)
+    print('volume spg:\n', abs(np.linalg.det(c)))
+    d, x2, x3 = spglib.find_primitive((latt, pos, num))
+    print(d)

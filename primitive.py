@@ -244,6 +244,7 @@ def check_volume1(prim_vec, latt):
     return flag3, None  # flag3 = 'Not Found'
 
 
+
 # 为了检查满足体积条件的prim_latt是不是本身就是input cell的lattice vec
 #  如果我们找出来的prim_latt就是输入的，说明输入的本身就是个原胞
 def check_volume2(min_vec, prim_vec, latt):
@@ -383,9 +384,8 @@ def AtomPosConv2Prim(prim_latt, latt, pos, num):
     return prim_latt, new_num, new_pos
 
 
-'''
-# conventional changes to primitive
-# find new atom position (for primitive)
+
+# primitive changes to conventional 
 def AtomPosPrim2Conv(prim_latt, latt, pos, num, cel_size):
     latt_vol = np.linalg.det(latt)
     prim_vol = np.linalg.det(prim_latt)
@@ -480,7 +480,7 @@ def AtomPosPrim2Conv(prim_latt, latt, pos, num, cel_size):
     print('new positions:\n', [list(i) for i in new_pos])
 
     return prim_latt, new_num, new_pos
-'''
+
 
 
 def GetPrimLattice(latt, pos, num, dictp):
@@ -526,10 +526,9 @@ def GetPrimLattice(latt, pos, num, dictp):
                     print('primitive cell positions:\n', [list(i) for i in new_pos])  # atom postion
                     return reduc_latt, new_num, new_pos, is_prim
 
-'''
-latt, pos, num, dictp = delaunay.StructRead()
-GetPrimLattice(latt, pos, num, dictp)
-'''
-#flag, reduc_b, delauP = Delaunay(latt, -1)
-#print(reduc_b)
-#print(delauP)
+
+
+def test_delaunay():
+    flag, reduc_b, delauP = Delaunay(latt, -1)
+    print(reduc_b)
+    print(delauP)
