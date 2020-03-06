@@ -2,9 +2,16 @@
 
 python3 version of spglib 
 
-##  Functions
+## Functions
+
 writing....
+
+
+## Reference
+
+spglib: https://atztogo.github.io/spglib/
+
 
 ### Author
 
-(https://github.com/Cecilia9999/)
+Cecilia9999:  https://github.com/Cecilia9999/
