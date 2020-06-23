@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+
+"""
+Created on 2019-03-18
+Update  on 2020-06-22
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
 '''
-This part is for decompsing hall symbol
+    This file is for decompsing hall symbol
 '''
 
 import numpy as np
 import csv
 import spglib
-
 
 
 E = np.identity(3)
@@ -104,7 +111,7 @@ rot_mat = {
     }
 
 
-#hall_symbols = loadcsvfile()
+# hall_symbols = loadcsvfile()
 def loadcsvfile():
     with open("../supports/spg.csv", "rt") as CF:
         cr = csv.reader(CF)
@@ -115,8 +122,6 @@ def loadcsvfile():
     
     
 def LookHallSymbol(hallnum):
-    #fulloper = []
-    #for i in hall_symbols[hallnum-1]:
     hall_symbols = loadcsvfile()
     sgnum = hall_symbols[hallnum-1][0]
     LNATV = hall_symbols[hallnum-1][1]
@@ -125,7 +130,7 @@ def LookHallSymbol(hallnum):
         oper.append(j)
         # fulloper.append(oper)
         # print(fulloper)
-    #print(oper)
+    # print(oper)
 
     V = None
     if len(oper) > 3:
@@ -134,14 +139,14 @@ def LookHallSymbol(hallnum):
             V2 = float(oper[-2])
             V3 = float(oper[-1].strip(')'))
             V = np.array([V1, V2, V3])
-            #print(V)
+            # print(V)
             oper = oper[:-3]
-        else:
-            #print("no V")
-            pass
-    else:
-        #print('pass')
-        pass
+        # else:
+            # print("no V")
+            # pass
+    # else:
+        # print('pass')
+        # pass
 
     L = oper[0]
     improR = 1
@@ -155,10 +160,12 @@ def LookHallSymbol(hallnum):
     T = []
     R1 = []
     T1 = []
+    
     if len(strN) == 1:
         Axis = 'z'
         R1.append(improR * np.array(rot_mat[strN[0] + Axis]))   # default z
         R = improR * np.array(rot_mat[strN[0] + Axis])
+    
     elif strN[1] in ['x', 'y', 'z']:
         R1.append(improR * np.array(rot_mat[strN[0] + strN[1]]))
         R = improR * np.array(rot_mat[strN[0] + strN[1]])
@@ -166,14 +173,17 @@ def LookHallSymbol(hallnum):
         if len(strN) > 2:
             for j in strN[2:]:
                 T.append(trans_sym[j])
+    
     elif strN[0] == '3' and strN[1] == '*':
         Axis = '*'
         R1.append(improR * np.array(rot_mat[strN[0] + Axis]))  # 3*
         R = improR * np.array(rot_mat[strN[0] + Axis])
+    
     else:
         Axis = 'z'
         R1.append(improR * np.array(rot_mat[strN[0] + Axis]))
         R = improR * np.array(rot_mat[strN[0] + Axis])
+        
         for j in strN[1:]:
             if j in ['1', '2', '3', '4', '5']:
                 T.append([0, 0, float(j)/float(strN[0])])
@@ -190,7 +200,7 @@ def LookHallSymbol(hallnum):
     T1.append(allT)
 
     if len(N) > 1:
-        #print(preR)
+        # print(preR)
         N1 = oper[2:]
 
         for k, N in enumerate(N1):
@@ -199,6 +209,7 @@ def LookHallSymbol(hallnum):
                 if N.startswith('-'):
                     improR = -1
                     N = N.strip('-')
+                
                 strN = N
                 if strN[0] == '2':
                     if len(strN) > 1 and strN[1] == '=':
@@ -208,6 +219,7 @@ def LookHallSymbol(hallnum):
                         if len(strN) > 2:
                             for j in strN[2:]:
                                 T.append(trans_sym[j])
+                    
                     elif preR == '2' or preR == '4':
                         Axis = 'x'
                         R1.append(improR * np.array(rot_mat[strN[0] + Axis]))  # 2x
@@ -215,6 +227,7 @@ def LookHallSymbol(hallnum):
                         if len(strN) > 1:
                             for j in strN[1:]:
                                 T.append(trans_sym[j])
+                    
                     elif preR == '3' or preR == '6':
                         Axis = 'z'
                         R1.append(improR * np.array(rot_mat[strN[0] + 'p' + Axis]))  # 2pz
@@ -222,6 +235,7 @@ def LookHallSymbol(hallnum):
                         if len(strN) > 1:
                             for j in strN[1:]:
                                 T.append(trans_sym[j])
+                
                 else:
                     Axis = 'z'
                     R1.append(improR * np.array(rot_mat[strN[0] + Axis]))  #
@@ -235,6 +249,7 @@ def LookHallSymbol(hallnum):
                     improR = -1
                     N = N.strip('-')
                 strN = N
+                
                 if strN[0] == '3':
                     Axis = '*'
                     R1.append(improR * np.array(rot_mat[strN[0] + Axis]))  # 3*
@@ -244,13 +259,16 @@ def LookHallSymbol(hallnum):
                     Axis = 'z'
                     R1.append(improR * np.array(rot_mat[strN[0] + Axis]))
                     R = improR * np.array(rot_mat[strN[0] + Axis])
+                
                 if len(N) > 1:
                     for j in N[1:]:
                         T.append(trans_sym[j])
+            
             else:
                 if N.startswith('-'):
                     improR = -1
                     N = N.strip('-')
+                
                 strN = N
                 Axis = 'z'
                 R1.append(improR * np.array(rot_mat[strN[0] + Axis]))
@@ -263,6 +281,7 @@ def LookHallSymbol(hallnum):
             allT = np.zeros(3, dtype=float)
             for t in T:
                 allT = allT + t
+            
             T1.append(allT)
             count = k + 1
             eOper.append([count, R, allT, Axis])
@@ -270,7 +289,8 @@ def LookHallSymbol(hallnum):
     return L, V, eOper, R1, T1
 
 
-def mulGrouOper(GR, GT):      # recusive function
+# recusive function
+def mulGrouOper(GR, GT):      
     if not (GR[-1] == E).all():
         R = np.dot(GR[0], GR[-1])
         T = np.dot(GR[0], GT[-1]) + GT[0]
@@ -332,7 +352,6 @@ def GroupOperation(hallnum):
     return GR_conv, GT_conv
 
 
-
 # check LookHallSymbol()
 def test_getInfoFromHallSym(num):
     L, V, eOper, R1, T1 = LookHallSymbol(408)
@@ -350,7 +369,6 @@ def test_getInfoFromHallSym(num):
     print(GR_111, GT_111)
 
 
-
 # get symmetry operations from hall symbol
 def test_symOperFromHallSym(num):
     GR, GT = GroupOperation(num)  
@@ -362,15 +380,16 @@ def test_symOperFromHallSym(num):
         print(i)
 
     
-    
 # check operations of space group refering to spglib code
 def teat_countAllOperations():
     count = 0
     for i in range(1, 531):
         GR, GT = GroupOperation(i)
         reference = spglib.get_symmetry_from_database(i)
-        a1 = [] # symmetry operations from spglib code
-        a2 = [] # symmetry operations from this code
+        
+        a1 = []     # symmetry operations from spglib code
+        a2 = []     # symmetry operations from this code
+        
         for j1, j2 in zip(reference['rotations'], reference['translations']):
             m = []
             for k1 in j1:
@@ -382,7 +401,7 @@ def teat_countAllOperations():
             for k1 in j1:
                 m.append(list(k1))
             a2.append([m, list(j2)])
-        #print(a2)
+        # print(a2)
 
         a = [m for m in a1 if m not in a2]
         b = [n for n in a2 if n not in a1]
@@ -391,6 +410,5 @@ def teat_countAllOperations():
             print('error:', i)
         else:
             count = count + 1
-            #print('true')
+            # print('true')
         print(count)
-

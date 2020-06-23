@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+
+"""
+Created on 2019-04-06
+Update  on 2020-06-23
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
 '''
-This part is for OS input cell
+    This file is for handling input cell
 '''
 
 import os
@@ -47,34 +55,33 @@ def StructRead(filename):
         tmp1 = tmp[1].split()
         latt_const = float(tmp1[0])
         # print(latt_const)
+        
         tmp3 = []
         for i in tmp[2:5]:
             tmp2 = []
             for j in i.split():
                 tmp2.append(float(j) * latt_const)
             tmp3.append(tmp2)
-        # print(tmp3)
+        
         lattice = np.array(tmp3)
         np.set_printoptions(formatter={'float': '{:0.10f}'.format})
-        print('lattice:')
-        print(lattice)
+        print('lattice:\n', lattice)
+
         species = tmp[5]
         tmp7 = species.split()  # [Si, O]
         tmp4 = [int(i) for i in tmp[6].split()]  # [4, 8]
         dictp = dict(zip(tmp7, tmp4))
-        print(dictp)
+        
+        # print(dictp)
         numbers = []
         for i in dictp.keys():
             for k in range(dictp[i]):
-                #numbers.append(GetAtom(i))  # [40, 40, 40, 40, 8, 8, 8, 8, 8, 8, 8, 8]
+                # numbers.append(GetAtom(i))  # [40, 40, 40, 40, 8, 8, 8, 8, 8, 8, 8, 8]
                 numbers.append(i)  # [40, 40, 40, 40, 8, 8, 8, 8, 8, 8, 8, 8]
-        print('numbers:')
-        print(numbers)
+        print('numbers:\n', numbers)
 
         tmp5 = tmp[7].split()
-        #print(tmp5)
         m = 0
-
         if tmp5[0].startswith('D') or tmp5[0].startswith('d') or tmp5[0].startswith('C') or tmp5[0].startswith('c'):
             m = 8
         elif tmp5[0].startswith('S') or tmp5[0].startswith('s'):
@@ -99,7 +106,7 @@ def StructRead(filename):
         return lattice, positions, numbers, dictp
 
 
-# // determine the input cell is right (two atoms are too closed)
+# determine if the input cell is reasonable or not (check distortion)
 def AtomsTooClosed(latt, pos, num):
     tolerance = 0.00001
     cel_size = len(pos)
@@ -113,12 +120,13 @@ def AtomsTooClosed(latt, pos, num):
             else:
                 tp_pos[j] = int(tp_pos[j] + 0.5)
         tp2 = tp2 - tp_pos
-        #print(tp2)
+        # print(tp2)
         for j in range(3):
             if tp2[j] < 0.0:
                 tp2[j] += 1.0
         check_pos.append(tp2)
-    #print(check_pos)
+    
+    # print(check_pos)
     for i in range(cel_size):
         for j in range(cel_size):
             if i == j:
@@ -160,12 +168,13 @@ def StandardPrimCell(latt, pos, num, center):
         trans_mat = np.dot(inv_trans_mat, R_mat)
 
     prim_latt = np.dot(np.transpose(trans_mat), latt)
-    #t = np.dot(trans_matrix, trans_mat)
+    # t = np.dot(trans_matrix, trans_mat)
 
-    std_prim_latt, std_prim_num, std_prim_pos = primitive.AtomPosConv2Prim(prim_latt, latt, pos, num)  # pos--> check_pos?
+    std_prim_latt, std_prim_num, std_prim_pos = primitive.AtomPosConv2Prim(prim_latt, latt, pos, num)  
+    # pos --> check_pos?
 
     if not (std_prim_latt == np.zeros((3, 3))).all():
-        # // adjust positions to list format
+        # adjust positions to list format
         new_std_prim_pos = []
         for i in std_prim_pos:
             tp = []
@@ -182,7 +191,7 @@ def StandardPrimCell(latt, pos, num, center):
 
 
 def GetStandardPos(std_latt, pos, num, trans_matrix, center, is_prim, origin, prim_flag=False):
-    # // Get standard positions
+    # Get standard positions
     tp_positions = []
     positions = []
     std_num = []
@@ -236,7 +245,7 @@ def GetStandardPos(std_latt, pos, num, trans_matrix, center, is_prim, origin, pr
             for i in range(len(shift)):
                 std_num.append(j)
 
-        # // adjust positions to list format
+        # adjust positions to list format
         for i in positions:
             tp = []
             for j in i:
@@ -244,12 +253,12 @@ def GetStandardPos(std_latt, pos, num, trans_matrix, center, is_prim, origin, pr
             std_pos.append(tp)
 
     else:
-        # // input is conventional
+        # input is conventional
         tp_positions = delaunay.ChangeOfBasis(pos, np.linalg.inv(trans_matrix))
         for i in tp_positions:
             positions.append(np.array(i) + origin)
 
-        # // adjust positions to list format
+        # adjust positions to list format
         for i in positions:
             tp = []
             for j in i:
@@ -324,9 +333,11 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
             std_latt[2] = [0, 0, nlc]
 
     elif pgt_type[4] == 'HEXA' or pgt_type[4] == 'TRIGO':
-        # // for the conventional cell representation, show the rhombohedral lattices as hexagonal
+        # for the conventional cell representation, show the rhombohedral lattices as hexagonal
         nla = nlb = nlc = 0
-        if np.all(np.abs([la - lb, lc - lb, la - lc]) < 0.001):     # // a = b = c rhombohedral
+        
+        # a = b = c rhombohedral
+        if np.all(np.abs([la - lb, lc - lb, la - lc]) < 0.001):     
             tp_latt = np.zeros((3, 3))
             tp_latt[0] = latt[0] - latt[1]
             tp_latt[1] = latt[1] - latt[2]
@@ -344,15 +355,17 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
             std_latt[0] = [lc / 2, -lc * np.sqrt(3) / 2, 0]
             std_latt[1] = [lc / 2, lc * np.sqrt(3) / 2, 0]
             std_latt[2] = [0, 0, la]
+        
         else:
             std_latt[0] = [la / 2, -la * np.sqrt(3) / 2, 0]
             std_latt[1] = [la / 2, la * np.sqrt(3) / 2, 0]
             std_latt[2] = [0, 0, lc]
+        
         transf = np.eye(3, 3)
 
     elif pgt_type[4] == 'MONOCLI':
-        # // C-setting
-        # // Please check A/B-FACE, are they needed to be set?
+        # C-setting
+        # Please check A/B-FACE, are they needed to be set?
         if center == 'C_FACE':
             transf[2] = [0, 0, 1]
             srt_l = sorted(tp_list[0:2], key=lambda k: k[1])
@@ -360,7 +373,8 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
             nlb = srt_l[1][1]
             nlc = lc
             tpp_latt = latt.copy()
-            # for t in itertools.permutations (list (range (2)), 2):   # // 2, 0, 1;  0, 1, 2
+            # for t in itertools.permutations (list (range (2)), 2):   
+            # 2, 0, 1;  0, 1, 2
             for t in [[0, 1], [1, 0]]:
                 tp_latt = np.zeros((3, 3))
                 std_latt = np.zeros((3, 3))
@@ -370,8 +384,10 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
                 nalpha = np.arccos(np.dot(tpp_latt[t[1]], tpp_latt[2]) / (nnlb * nnlc))
                 nbeta = np.arccos(np.dot(tpp_latt[2], tpp_latt[t[0]]) / (nnlc * nnla))
                 ngamma = np.arccos(np.dot(tpp_latt[t[0]], tpp_latt[t[1]]) / (nnla * nnlb))
+                
                 if (ngamma / np.pi * 180) == 90:
                     continue
+                
                 elif (ngamma / np.pi * 180) > 90:
                     # if the alpha angle is > 90 we invert a and b to get
                     # an angle < 90
@@ -424,11 +440,14 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
                 nalpha = np.arccos(np.dot(tpp_latt[t[1]], tpp_latt[t[2]]) / (nnlb * nnlc))
                 nbeta = np.arccos(np.dot(tpp_latt[t[2]], tpp_latt[t[0]]) / (nnlc * nnla))
                 ngamma = np.arccos(np.dot(tpp_latt[t[0]], tpp_latt[t[1]]) / (nnla * nnlb))
+                
                 print('SDS', nalpha, nbeta, ngamma)
                 print('long:', nnla, nnlb, nnlc, t)
                 print('first angle: \n', (nbeta / np.pi * 180))
+                
                 if (nbeta / np.pi * 180) == 90 or nnla > nnlc:
                     continue
+                
                 elif (nbeta / np.pi * 180) > 90 and nnla < nnlc:
                     tp_latt[0] = -tpp_latt[t[0]]
                     tp_latt[1] = tpp_latt[t[1]]
@@ -467,7 +486,7 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
                 for i in range(3):
                     transf[i][srt_l[i][2]] = 1
             '''
-            #if international_monoclinic:
+            # if international_monoclinic:
                 # The above code makes alpha the non-right angle.
                 # The following will convert to proper international convention
                 # that beta is the non-right angle.
@@ -497,7 +516,7 @@ def GetStandardCell(latt, pos, num, trans_matrix, center, is_prim, pgt_type, ori
         transf = np.identity(3)
     '''
     trans_matrix = np.dot(trans_matrix, np.transpose(transf))
-    #print('check ', trans_matrix)
+    # print('check ', trans_matrix)
 
     if not (std_latt == np.zeros((3, 3))).all():
         std_lattice, std_numbers, std_positions = GetStandardPos(std_latt, pos, num, trans_matrix, center, is_prim, origin)
@@ -520,20 +539,19 @@ if __name__ = "__main__":
     print('hall num: {}\n'.format(hallnum))
     print('origin: {}\n'.format(origin))
     print('bravais lattice: {}\n'.format(new_latt))
-    #print('trans matrix:\n', trans_matrix)
+    # print('trans matrix:\n', trans_matrix)
     print('point group: {}\n'.format(pgt_type[0]))
     print('schoenf symbol: {}\n'.format(pgt_type[2]))
     print('holohedry: {}\n'.format(pgt_type[3]))
     print('laue: {}\n'.format(pgt_type[4]))
 
-
     if is_prim:
         std_latt, std_num, std_pos = GetStandardCell(new_latt, p_pos, o_num, trans_matrix, center, is_prim, pgt_type, origin)
-        #std_latt, std_num, std_pos = GetStandardPos(new_latt, p_pos, o_num, trans_matrix, center, is_prim, origin)
+        # std_latt, std_num, std_pos = GetStandardPos(new_latt, p_pos, o_num, trans_matrix, center, is_prim, origin)
     else:
         trans_matrix2 = np.dot(np.transpose(np.dot(prim_latt, np.linalg.inv(o_latt))), trans_matrix)
         std_latt, std_num, std_pos = GetStandardCell(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, pgt_type, origin)
-        #std_latt, std_num, std_pos = GetStandardPos(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, origin)
+        # std_latt, std_num, std_pos = GetStandardPos(new_latt, o_pos, o_num, trans_matrix2, center, is_prim, origin)
 
     print('lattice: {}\n'.format(std_latt))
     print('numbers: {}\n'.format(std_num))

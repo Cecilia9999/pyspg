@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
 
+"""
+Created on 2019-03-20
+Update  on 2020-06-23
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
+'''
+     This file is for finding referenced symmetry operations by hall number
+'''
 import numpy as np
 
 

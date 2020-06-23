@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
 
+"""
+Created on 2019-03-26
+Update  on 2020-06-23
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
+
 '''
 This part is for matching hall symbol
 '''
@@ -1463,20 +1471,27 @@ cub_generators = [
 ]
 
 
-def ChangeOrigin(origin, center):   # // p(prim) --> p(conv)
+# p(prim) --> p(conv)
+def ChangeOrigin(origin, center):  
     tp_ori = np.zeros(3)
     if center == 'PRIMITIVE':
         tp_ori = origin.copy()
+        
     elif center == 'BODY':
         tp_ori = np.dot(origin, np.transpose(I_mat))
+        
     elif center == 'FACE':
         tp_ori = np.dot(origin, np.transpose(F_mat))
+        
     elif center == 'A_FACE':
         tp_ori = np.dot(origin, np.transpose(A_mat))
+        
     elif center == 'B_FACE':
         tp_ori = np.dot(origin, np.transpose(B_mat))
+        
     elif center == 'C_FACE':
         tp_ori = np.dot(origin, np.transpose(C_mat))
+        
     elif center == 'R_CENTER':
         tp_ori = np.dot(origin, np.transpose(R_mat))
 
@@ -1487,16 +1502,22 @@ def TransformTrans(trans, center):
     tp_trans = np.zeros(3)
     if center == 'PRIMITIVE':
         tp_trans = trans.copy()
+        
     elif center == 'BODY':
         tp_trans = np.dot(np.linalg.inv(I_mat), trans)
+        
     elif center == 'FACE':
         tp_trans = np.dot(np.linalg.inv(F_mat), trans)
+        
     elif center == 'A_FACE':
         tp_trans = np.dot(np.linalg.inv(A_mat), trans)
+        
     elif center == 'B_FACE':
         tp_trans = np.dot(np.linalg.inv(B_mat), trans)
+        
     elif center == 'C_FACE':
         tp_trans = np.dot(np.linalg.inv(C_mat), trans)
+        
     elif center == 'R_CENTER':
         tp_trans = np.dot(np.linalg.inv(R_mat), trans)
 
@@ -1531,40 +1552,14 @@ def TransformRot(rot, center):
     elif center == 'R_CENTER':
         P = R_mat.copy()
 
-    tp_rot1 = np.dot(np.linalg.inv(P), rot)     # // new_rot W'=QWP
-    tp_rot = np.dot(tp_rot1, P)  # // new_rot W'=QWP
-    '''
-        tp_rot2 = tp_rot.copy()
-        # // find matrix whose elements are all integer
-        # print('tp det:', np.linalg.det(tp_rot))
-
-        for j in range(3):
-            for k in range(3):
-                if tp_rot2[j, k] < 0.0:
-                    tp_rot2[j, k] = int(tp_rot2[j, k] - 0.5)
-                else:
-                    tp_rot2[j, k] = int(tp_rot2[j, k] + 0.5)
-        # print('1:', tp_rot1)
-        # print('2:', tp_rot2)
-        tp_flag = True
-        for j in range(3):
-            for k in range(3):
-                if abs(tp_rot2[j, k] - tp_rot[j, k]) > 0.00001:
-                    tp_flag = False
-                    break
-                else:
-                    tp_flag = True
-        if tp_flag:
-            if abs(np.linalg.det(tp_rot2)) == 1:  # //tp_rot1 or tp_rot2
-                return tp_rot2
-        else:
-            return None
-    '''
+    tp_rot1 = np.dot(np.linalg.inv(P), rot)     # new_rot W'=QWP
+    tp_rot = np.dot(tp_rot1, P)                 # new_rot W'=QWP
+   
     return tp_rot
 
 
 def FinalMatch(prim_latt, shift, new_symm, center, ref_rot, ref_tr):
-    #print('how many:', new_symm[1][0])
+    # print('how many:', new_symm[1][0])
     for i in range(len(new_symm)):
         is_found = 0
         for j in range(len(ref_rot)):
@@ -1585,7 +1580,8 @@ def FinalMatch(prim_latt, shift, new_symm, center, ref_rot, ref_tr):
                         tp_diff[k] = int(tp_diff[k] + 0.5)
 
                 nvec_diff = vec_diff - tp_diff
-                if np.linalg.norm(np.dot(np.transpose(prim_latt), np.transpose(nvec_diff))) < tolerance:  # // np.dot(latt, nvec_diff) is better?
+                if np.linalg.norm(np.dot(np.transpose(prim_latt), np.transpose(nvec_diff))) < tolerance:  
+                    # np.dot(latt, nvec_diff) is better?
                     is_found = 1  # overlap
                     break
         if not is_found:
@@ -1595,7 +1591,7 @@ def FinalMatch(prim_latt, shift, new_symm, center, ref_rot, ref_tr):
 
 
 def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
-    # // first, the number of symmetry should be the same as that of reference
+    # first, the number of symmetry should be the same as that of reference
     ref_rot, ref_tr = halldata.GetReferOper(hall_num)
     if len(ref_rot) != len(new_symm):
         return 0, None
@@ -1606,13 +1602,14 @@ def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
         tp_rot = (np.array(generator[i])).reshape(3, 3)
         rot.append(tp_rot)
         trans.append(np.zeros(3))
-    #print('c1', rot)
+    # print('c1', rot)
 
-    #is_found_tot = 0
+    # is_found_tot = 0
     for i in range(3):
         if (rot[i] == np.zeros(3)).all():
-            #print('checkidentity')
+            # print('checkidentity')
             continue
+        
         is_found = 0
         for j in range(len(new_symm)):
             tp1 = np.array(new_symm[j][0])
@@ -1620,13 +1617,14 @@ def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
             if (tp1 == tp2).all():
                 is_found = 1
                 trans[i] = new_symm[j][1]
-                #print('found', rot[i], trans[i], i)
+                # print('found', rot[i], trans[i], i)
                 break
+        
         if not is_found:
-            #print('no??')
+            # print('no??')
             return 0, None
 
-    # // get origin shift
+    # get origin shift
     tp_trans = []
     delta_w = []
     for i in range(3):
@@ -1638,24 +1636,24 @@ def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
             continue
         is_found1 = 0
         tp_trans[k] = TransformTrans(trans[k], center)
-        #tp_ref_tr = np.zeros(3)
+        # tp_ref_tr = np.zeros(3)
         for j in range(len(ref_rot)):
             tp_ref_tr = TransformTrans(ref_tr[j], center)
             if (np.array(ref_rot[j]) == np.array(rot[k])).all():
                 is_found1 = 1
-                #tp_ref_tr = tp_trans[k] - tp_ref_tr
-                #delta_w[k] = tp_ref_tr.copy()
+                # tp_ref_tr = tp_trans[k] - tp_ref_tr
+                # delta_w[k] = tp_ref_tr.copy()
                 delta_w[k] = tp_trans[k] - tp_ref_tr
                 break
         if not is_found1:
-            #print('no2???')
+            # print('no2???')
             return 0, None
 
     tp_w = []
     for i in delta_w:
         for j in i:
             tp_w.append(j)
-    #print('check tp_w: ', tp_w)
+    # print('check tp_w: ', tp_w)
 
     tp2 = tp_w.copy()
     for i in range(len(tp2)):
@@ -1667,7 +1665,7 @@ def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
         tp_w[i] = tp_w[i] - tp2[i]
         if tp_w[i] < 0.0:
             tp_w[i] += 1.0
-    #print('check new tp_w: ', tp_w)
+    # print('check new tp_w: ', tp_w)
 
     shift = np.zeros(3)
     for i in range(3):
@@ -1683,18 +1681,18 @@ def HallSym(prim_latt, hall_num, new_symm, center, generator, VSpU):
         for k in range(3):
             if shift[k] < 0.0:
                 shift[k] += 1.0
-    #print('shift is', shift)
+    # print('shift is', shift)
 
     if FinalMatch(prim_latt, shift, new_symm, center, ref_rot, ref_tr):
         print('match', center)
         return 1, shift
     else:
-        #print('not found', hall_num)
+        # print('not found', hall_num)
         return 0, None
 
 
 def MatchHall(conv_latt, hall_num, new_symm, new_cen):
-    #print('center1:\n', new_cen)
+    # print('center1:\n', new_cen)
     prim_latt = np.zeros((3, 3))
     if new_cen == 'PRIMITIVE':
         prim_latt = conv_latt.copy()
@@ -1717,7 +1715,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
     elif new_cen == 'R_CENTER':
         prim_latt = np.dot(np.transpose(R_mat), conv_latt)
 
-    # // TRICLINIC
+    # TRICLINIC
     if hall_num in range(1, 3):
         for i in range(2):
             flag, shift = HallSym(prim_latt, hall_num, new_symm, 'PRIMITIVE', tricli_generators[i], tricli_VSpU[i])
@@ -1726,7 +1724,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                 return 1, origin
         return 0, None
 
-    # // MONOCLINIC
+    # MONOCLINIC
     if hall_num in range(3, 108):
         for i in range(9):
             if new_cen == 'PRIMITIVE':
@@ -1756,7 +1754,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                     return 1, origin
         return 0, None
 
-    # // ORTHOGONAL
+    # ORTHOGONAL
     if hall_num in range(108, 349):
         for i in range(5):
             if new_cen == 'PRIMITIVE':
@@ -1791,7 +1789,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                     return 1, origin
         return 0, None
 
-    # // TETRAGONAL
+    # TETRAGONAL
     if hall_num in range(349, 430):
         for i in range(8):
             if new_cen == 'PRIMITIVE':
@@ -1807,9 +1805,9 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
 
         return 0, None
 
-    # // TRIGONAL
+    # TRIGONAL
     if hall_num in range(430, 462):
-        # // RHOMBO
+        # RHOMBO
         if hall_num in [433, 434, 436, 437, 444, 445, 450, 451, 452, 453, 458, 459, 460, 461]:
             if hall_num in [433, 436, 444, 450, 452, 458, 460]:
                 for i in range(8):
@@ -1826,7 +1824,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                         return 1, origin
                 return 0, None
         else:
-            # // TRIGONAL
+            # TRIGONAL
             for i in range(13):
                 flag, shift = HallSym(prim_latt, hall_num, new_symm, 'PRIMITIVE', trigo_generators[i], trigo_VSpU[i])
                 if shift is not None:
@@ -1834,7 +1832,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                     return 1, origin
         return 0, None
 
-    # // HEXAGONAL
+    # HEXAGONAL
     if hall_num in range(462, 489):
         for i in range(8):
             flag, shift = HallSym(prim_latt, hall_num, new_symm, 'PRIMITIVE', hex_generators[i], hex_VSpU[i])
@@ -1843,7 +1841,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
                 return 1, origin
         return 0, None
 
-    # // CUBIC
+    # CUBIC
     if hall_num in range(489, 531):
         for i in range(10):
             if new_cen == 'PRIMITIVE':
@@ -1866,7 +1864,7 @@ def MatchHall(conv_latt, hall_num, new_symm, new_cen):
 
 
 def MatchHallMono(conv_latt, hall_num, num_hall_type, conv_symm, center):
-
+    
     from spgroup import GetConvSymm
 
     new_latt = np.zeros((3, 3))
@@ -1907,7 +1905,8 @@ def MatchHallOrtho(conv_latt, hall_num, conv_symm, center, num_free_ax):
     tolerance = 0.0000000001
     new_latt = np.zeros((3, 3))
     new_cen = None
-    #print(center)
+    # print(center)
+    
     for i in range(6):
         if center == 'C_FACE':
             new_cen = change_of_cen_ortho[i]

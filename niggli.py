@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+
+"""
+Created on 2019-03-15
+Update  on 2020-06-23
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
 '''
-This part is for finding delaunay reduced cell
-Note: only for 3D lattice
+    This file is for finding Niggli reduced cell
+    Note: only for 3D lattice
 '''
 
 import numpy as np
@@ -92,7 +100,8 @@ def Niggli(latt):
 
         if (B > C + tolerance) or ((not abs(B - C) > tolerance) and (abs(beta) > abs(gamma) + tolerance)):
             trans_mat = np.array([[-1, 0, 0], [0, 0, -1], [0, -1, 0]])
-            #A, B, C, alpha, beta, gamma, l, m, n, G, latt = SetPara(latt, trans_mat)
+            
+            # A, B, C, alpha, beta, gamma, l, m, n, G, latt = SetPara(latt, trans_mat)
             A1, B1, C1, alpha1, beta1, gamma1, l1, m1, n1, G1, latt1 = SetPara(latt, trans_mat)
             init = Update(A1, B1, C1, alpha1, beta1, gamma1, l1, m1, n1, G1, latt1)
             A, B, C, alpha, beta, gamma, l, m, n, G, latt = init.update()
@@ -213,6 +222,7 @@ def Niggli(latt):
     return None
 
 
+# test niggli
 def test_niggli():
     latt, pos, numb, dictp = delaunay.StructRead()
     flag, reduc_b, delauP = delaunay.Delaunay(latt, -1)

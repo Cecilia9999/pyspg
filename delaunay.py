@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
+
+"""
+Created on 2019-03-07
+Update  on 2020-06-22
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
 '''
-This part is for finding delaunay reduced cell
+    This file is for finding delaunay reduced cell
 '''
 
 import numpy as np
@@ -60,7 +68,7 @@ def Delaunay(latt, uni_ax):
             b[3, i] = -latt[0, i] - latt[1, i] - latt[2, i]
 
         for count in range(100):
-            #print('count: ', count)
+            # print('count: ', count)
             flag, b = DelauExchBasis(b, uni_ax)
             if flag:
                 #print('Succeed!')
@@ -74,11 +82,12 @@ def Delaunay(latt, uni_ax):
         v[5] = b[1] + b[2]
         v[6] = b[2] + b[0]
 
-        #reduc_set = [(v[i], "%.10f" % np.linalg.norm(v[i])) for i in range(0, 7)]
+        # reduc_set = [(v[i], "%.10f" % np.linalg.norm(v[i])) for i in range(0, 7)]
         reduc_set = [(v[i], np.around(np.linalg.norm(v[i]), decimals=5)) for i in range(0, 7)]
         sortreduc = sorted(reduc_set, key=lambda setx: setx[1])
-        #print('reduc_set:\n', reduc_set)
-        #print('sortreduc:\n', sortreduc)
+        # print('reduc_set:\n', reduc_set)
+        # print('sortreduc:\n', sortreduc)
+        
         reduc_b = np.zeros((3, 3))
 
         countp = 0
@@ -92,20 +101,22 @@ def Delaunay(latt, uni_ax):
 
         # determine whether the volume based on the shortest vec is appropriate or not
         volume = np.linalg.det(reduc_b)
-        #print('check reb1', reduc_b)
-        #print('old vol:\n', volume)
+        # print('check reb1', reduc_b)
+        # print('old vol:\n', volume)
+        
         if abs(volume) < vol_tolerance:
             print("Error: No Volume!")
             return 0, None, None
+            
         if volume < 0.0:
             reduc_b = -reduc_b.copy()
-        #print('check reb2', reduc_b)
-        #print('new volume:\n', np.linalg.det(reduc_b))
+        # print('check reb2', reduc_b)
+        # print('new volume:\n', np.linalg.det(reduc_b))
 
         # determinate of delaunay transformation
         inv_latt = np.linalg.inv(latt)
         delauP = np.transpose(np.dot(reduc_b, inv_latt))   # // P is vertical vec
-        #print('delaunayP1:\n', delauP)
+        # print('delaunayP1:\n', delauP)
 
         for i in range(3):
             for j in range(3):
@@ -113,13 +124,13 @@ def Delaunay(latt, uni_ax):
                     delauP[i, j] = int(delauP[i, j] - 0.5)
                 else:
                     delauP[i, j] = int(delauP[i, j] + 0.5)
-        #print('delaunayP2:\n', delauP)
-        #print('det P:\n', np.linalg.det(delauP))
+        # print('delaunayP2:\n', delauP)
+        # print('det P:\n', np.linalg.det(delauP))
 
         if abs(np.linalg.det(delauP)) != 1:
             print("Error: The abs of determinant of the delaunay matrix should be 1")
             return 0, None, None
-        #print(reduc_b)
+        # print(reduc_b)
 
         return flag, reduc_b, delauP
 
@@ -142,8 +153,8 @@ def Delaunay(latt, uni_ax):
             flag, b = DelauExchBasis(b, uni_ax)
             if flag:
                 break
-            #else:
-                #print(count, b)
+            # else:
+                # print(count, b)
 
         # search the 3 shortest lattice vec as basis vec
         v = np.zeros((4, 3))
@@ -151,25 +162,26 @@ def Delaunay(latt, uni_ax):
             v[i] = b[i]
         v[3] = b[0] + b[1]
 
-        #reduc_set = [(v[i], "%.10f" % np.linalg.norm(v[i])) for i in range(0, 4)]
+        # reduc_set = [(v[i], "%.10f" % np.linalg.norm(v[i])) for i in range(0, 4)]
         reduc_set = [(v[i], np.around(np.linalg.norm(v[i]), decimals=5)) for i in range(0, 4)]
         sortreduc = sorted(reduc_set, key=lambda setx: setx[1])
-        #print('reduc_set:\n', reduc_set)
-        #print('sortreduc:\n', sortreduc)
+        # print('reduc_set:\n', reduc_set)
+        # print('sortreduc:\n', sortreduc)
 
         tp_reduc_b = np.zeros((3, 3))
         tp_reduc_b[0] = sortreduc[0][0]
         tp_reduc_b[1] = uni_vec
-        #countp = 0
+        # countp = 0
         vol_tolerance = 0.00001
         for i in range(1, 4):
             tp_reduc_b[2] = sortreduc[i][0]
             if abs(np.linalg.det(tp_reduc_b)) > vol_tolerance:
                 break
-            #else:
-                #countp += 1
+            # else:
+                # countp += 1
         # print('countp:\n', countp)
         # print('tp_reduc_b:\n', tp_reduc_b)
+        
         reduc_b = np.zeros((3, 3))
         k = 0
         for i in range(3):
@@ -181,61 +193,65 @@ def Delaunay(latt, uni_ax):
 
         # determine whether the volume based on the shortest vec is appropriate or not
         volume = np.linalg.det(reduc_b)
-        #print('old vol:\n', volume)
+        # print('old vol:\n', volume)
+        
         if abs(volume) < vol_tolerance:
             print("Error: No Volume!")
             return 0, None, None
+        
         if volume < 0.0:
             reduc_b[uni_ax] = -reduc_b[uni_ax]
-        #volume = np.linalg.det (reduc_b)
-        #print('new volume:\n', np.linalg.det(reduc_b))
+        # volume = np.linalg.det (reduc_b)
+        # print('new volume:\n', np.linalg.det(reduc_b))
         # determinate of delaunay transformation
-
+        
+        # update: 3.13 this Q actually equals P:  (a'b'c') = (a b c) P   vertical vec
         inv_latt = np.linalg.inv(latt)
-        delauP = np.transpose(np.dot(reduc_b, inv_latt))  # // 3.13 this Q actually equals P:  (a'b'c') = (a b c) P   vertical vec
+        delauP = np.transpose(np.dot(reduc_b, inv_latt))  
+        
 
-        #print('delaunayP1:\n', delauP)
+        # print('delaunayP1:\n', delauP)
         for i in range(3):
             for j in range(3):
                 if delauP[i, j] < 0.0:
                     delauP[i, j] = int(delauP[i, j] - 0.5)
                 else:
                     delauP[i, j] = int(delauP[i, j] + 0.5)
-        #print('delaunayP2:\n', delauP)
+        # print('delaunayP2:\n', delauP)
 
-        #print('det P:\n', np.linalg.det(delauP))
+        # print('det P:\n', np.linalg.det(delauP))
 
         if abs(np.linalg.det(delauP)) != 1:
             print("Error: The abs of determinant of the delaunay matrix should be 1")
             return 0, None, None
-        #print(reduc_b)
+        # print(reduc_b)
 
         return flag, reduc_b, delauP
 
 
-def ChangeOfBasis(coor, Q):     # // Q should be vertical vec
-    #print('trans_matQ', Q)
+def ChangeOfBasis(coor, Q):     # Q : vertical vec
+    # print('trans_matQ', Q)
     tpos = []
     for i in coor:
         tp = np.dot(np.array(i), np.transpose(Q))
-        tp2 = tp.copy()     # Watch out! if you let "tp2 = tp", changing tp2 will result in tp changed, too
+        tp2 = tp.copy()     
         for j in range(3):
             if tp2[j] < 0.0:
                 tp2[j] = int(tp2[j] - 0.5)
             else:
                 tp2[j] = int(tp2[j] + 0.5)
         tp = tp - tp2
-        #print('3:\n', tp)
+        # print('3:\n', tp)
         for j in range(3):
             if tp[j] < 0.0:
                 tp[j] += 1.0
-        #print('3n:\n', tp)
+        # print('3n:\n', tp)
         tpos.append(tp)
     return tpos
 
 
 
-#  test
+# test
 def test_delaunay():
     latt, pos, num, dictp = StructRead()
     a, b, p = Delaunay(latt, -1)

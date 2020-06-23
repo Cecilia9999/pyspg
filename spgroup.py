@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 # -*- coding=utf-8 -*-
 
+"""
+Created on 2019-03-26
+Update  on 2020-06-23
+Author: Cecilia9999
+GitHub: https://github.com/Cecilia9999/
+"""
+
 '''
-This part is for finding space group
+    This file is for finding space group
 '''
 
 import numpy as np
@@ -40,7 +47,13 @@ spg_to_hall_num = [
     ]
 
 
-def GetCenter(trans_matP, laue):   # //trans_matP is vertical
+def GetCenter(trans_matP, laue):   
+    """
+        Get Center type and correct matrix when change symmtry
+        input: trans_matP: vertical vec
+               laue
+        return: center type, correct matrix
+    """
     identity = np.array([[1, 0, 0],
                          [0, 1, 0],
                          [0, 0, 1]])
@@ -65,32 +78,36 @@ def GetCenter(trans_matP, laue):   # //trans_matP is vertical
 
     correct_mat = np.identity(3)
     det = abs(np.linalg.det(trans_matP))
-    #print(det)
+
     center = None
-    # // see TABLE III
+    # see TABLE III
     if det == 1:
         center = 'PRIMITIVE'
 
     elif det == 2:
-        center = 'PRIMITIVE'  # // complete get center
+        center = 'PRIMITIVE'  # complete get center
         flag = []
         for i in range(3):
-            # // A center
-            # // exist one row, |a0| + |a1| + |a2| = 1 and |a0| = 1
+            
+            # A center
+            # exist one row, |a0| + |a1| + |a2| = 1 and |a0| = 1
             if trans_matP[i][1] == 0 and trans_matP[i][2] == 0 and abs(trans_matP[i][0]) == 1:
                 center = 'A_FACE'
                 break
-            # // B center
+                
+            # B center
             elif trans_matP[i][0] == 0 and trans_matP[i][2] == 0 and abs(trans_matP[i][1]) == 1:
                 center = 'B_FACE'
                 break
-            # // C center
-            # // exist one row, |a0| + |a1| + |a2| = 1 and |a2| = 1
+                
+            # C center
+            # exist one row, |a0| + |a1| + |a2| = 1 and |a2| = 1
             elif trans_matP[i][0] == 0 and trans_matP[i][1] == 0 and abs(trans_matP[i][2]) == 1:
                 center = 'C_FACE'
                 break
-            # // Body center
-            # // for each row, |a0| + |a1| + |a2| = 2
+                
+            # Body center
+            # for each row, |a0| + |a1| + |a2| = 2
             elif (abs(trans_matP[i][0]) + abs(trans_matP[i][1]) + abs(trans_matP[i][2])) == 2:
                 flag.append(True)
                 if len(flag) == 3:
@@ -104,10 +121,12 @@ def GetCenter(trans_matP, laue):   # //trans_matP is vertical
                 correct_mat = mono_a2c.copy()
             else:
                 correct_mat = a2c.copy()
+        
         elif center == 'B_FACE':
             center = 'C_FACE'
             print('B to C...')
             correct_mat = b2c.copy()
+        
         elif center == 'BODY' and laue == 'LAUE2M':
             center = 'C_FACE'
             print('Monoclinic I to C...')
@@ -115,10 +134,11 @@ def GetCenter(trans_matP, laue):   # //trans_matP is vertical
 
     elif det == 3:
         center = 'R_CENTER'
-        tp_mat1 = np.dot(trans_matP, rho_obv)   # // M' M
+        tp_mat1 = np.dot(trans_matP, rho_obv)   # M' M
         tp_mat = tp_mat1.copy()
-        # // determine whether in obverse setting
-        # // see the tp_mat is int mat or not
+        
+        # determine whether in reverse setting
+        # see the tp_mat is int mat or not
         for j in range(3):
             for k in range(3):
                 if tp_mat[j, k] < 0.0:
@@ -134,11 +154,12 @@ def GetCenter(trans_matP, laue):   # //trans_matP is vertical
                     break
                 else:
                     tp_flag = True
+        
         if tp_flag:
             correct_mat = rho_obv.copy()
         else:
-            # // determine whether in reverse setting
-            # // see the tp_mat is int mat or not
+            # determine whether in reverse setting
+            # see the tp_mat is int mat or not
             tp_mat2 = np.dot(trans_matP, rho_rev)
             tp_mat = tp_mat2.copy()
             for j in range(3):
@@ -170,11 +191,12 @@ def GetCenter(trans_matP, laue):   # //trans_matP is vertical
 def GetConvSymm(center, trans_mat, symmetry):
     conv_symm = []
     for sy in symmetry:
-        #tp_rot1 = np.dot(trans_mat, sy[0])
-        #conv_rot = np.dot(tp_rot1, np.linalg.inv(trans_mat))  # // new_rot W'= P^-1 W P   P: vertical
+        
+        # new_rot W'= P^-1 W P   P: vertical
         tp_rot1 = np.dot(np.linalg.inv(trans_mat), sy[0])
-        conv_rot = np.dot(tp_rot1, trans_mat)  # // new_rot W'= P^-1 W P
-        # // let W' with elements are all integers
+        conv_rot = np.dot(tp_rot1, trans_mat)  
+        
+        # let W' with elements are all integers
         for j in range(3):
             for k in range(3):
                 if conv_rot[j, k] < 0.0:
@@ -183,10 +205,11 @@ def GetConvSymm(center, trans_mat, symmetry):
                     conv_rot[j, k] = int(conv_rot[j, k] + 0.5)
 
         conv_trans = np.dot(np.linalg.inv(trans_mat), sy[1])
-        #print(conv_symm)
+        # print(conv_symm)
+        
         conv_symm.append([np.array(conv_rot, dtype=int), conv_trans])
 
-    #print('check conv_symm:', len(conv_symm))
+    # print('check conv_symm:', len(conv_symm))
 
     shift = [[0, 0, 0]]
     if center == 'A_FACE':
@@ -219,22 +242,32 @@ def GetConvSymm(center, trans_mat, symmetry):
             new_conv_rot = conv_symm[j][0].copy()
             new_conv_trans = conv_symm[j][1] + shift[i]
             tp2 = new_conv_trans.copy()
+            
             for k in range(3):
                 if tp2[k] < 0.0:
                     tp2[k] = int(tp2[k] - 0.5)
                 else:
                     tp2[k] = int(tp2[k] + 0.5)
+                    
             new_conv_trans = new_conv_trans - tp2
+            
             for k in range(3):
                 if new_conv_trans[k] < 0.0:
                     new_conv_trans[k] += 1.0
+                    
             new_conv_sym.append([new_conv_rot, new_conv_trans])
-            #print('check int2', new_conv_sym[0])
-    #print('check new_conv_symm: ', len(new_conv_sym))
+            # print('check int2', new_conv_sym[0])
+    
+    # print('check new_conv_symm: ', len(new_conv_sym))
     return new_conv_sym
 
 
 def GetSpaceData(hall_num):
+    """
+        Given Hall number, get space information via hall symbol table
+        input: hall number
+        return: space information (list)
+    """
     spgtype = None
     with open("../supports/newspg.csv", "rt") as CF:
         cr = csv.reader(CF)
@@ -254,6 +287,9 @@ def GetSpaceData(hall_num):
 
 
 def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
+    """
+        Get Hall number via space number
+    """
     change_of_b_501 = np.array([[0, 0, 1],
                                 [0, -1, 0],
                                 [1, 0, 0]])
@@ -266,6 +302,7 @@ def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
     spgtype = GetSpaceData(hall_num)
     num_hall_type = spg_to_hall_num[spgn] - spg_to_hall_num[spgn - 1]
     #print('check', pgt_type[0], spgtype[5])
+    
     if spgtype[5] != pgt_type[0]:
         return 0, None, None, None
 
@@ -280,29 +317,29 @@ def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
 
         if num_hall_type == 1:
             num_free_ax = 6
-            #print('num_hall_type 1')
+            # print('num_hall_type 1')
             flag, new_latt, origin = matchHall.MatchHallOrtho(conv_latt, hall_num, conv_symm, center, num_free_ax)
             if flag:
                 return 1, new_latt, origin, spgn
 
         elif num_hall_type == 2:
             num_free_ax = 3
-            #print('num_hall_type 2')
+            # print('num_hall_type 2')
             flag, new_latt, origin = matchHall.MatchHallOrtho(conv_latt, hall_num, conv_symm, center, num_free_ax)
             if flag:
                 return 1, new_latt, origin, spgn
 
         elif num_hall_type == 3:
-            #print('num_hall_type 3_1')
+            # print('num_hall_type 3_1')
             tp_conv_latt = conv_latt.copy()
             num_free_ax = 0
             flag, new_latt, origin = matchHall.MatchHallOrtho(tp_conv_latt, spg_to_hall_num[spgn - 1], conv_symm,
                                                                 center, num_free_ax)
-            # // strange!!!!!!!!!!!need to be changed!!!!!!!!!
+            # here may occur problem
             if flag:
                 return 1, new_latt, origin, spgn-1
 
-            #print('num_hall_type 3_2')
+            # print('num_hall_type 3_2')
             trans_m = np.transpose(np.dot(tp_conv_latt, np.linalg.inv(conv_latt)))
             tp_conv_symm = GetConvSymm('PRIMITIVE', trans_m, conv_symm)
             num_free_ax = 2
@@ -312,7 +349,7 @@ def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
                 return 1, new_latt, origin, spgn
 
         elif num_hall_type == 6:
-            #print('num_hall_type 6')
+            # print('num_hall_type 6')
             num_free_ax = 1
             flag, new_latt, origin = matchHall.MatchHallOrtho(conv_latt, hall_num, conv_symm, center, num_free_ax)
             if flag:
@@ -320,9 +357,11 @@ def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
 
     if pgt_type[4] == 'CUBIC':
         flag, origin = matchHall.MatchHall(conv_latt, hall_num, conv_symm, center)
+        
         if flag:
-            #print('check flag', flag)
+            # print('check flag', flag)
             return 1, conv_latt, origin, spgn
+        
         if hall_num == 501:
             tp_conv_latt = np.dot(np.transpose(change_of_b_501), conv_latt)
             tp_conv_symm = GetConvSymm('PRIMITIVE', change_of_b_501, conv_symm)
@@ -351,26 +390,28 @@ def GetHallNumber(conv_latt, spgn, pgt_type, conv_symm, center):
 
 
 def GetSpaceGroup(prim_latt, symmetry, pgt_type, axis):
-    # // search hall number
-    # // standardize
-    #o_latt, o_pos, o_num, dictp = delaunay.StructRead()
-    #prim_latt, num, pos = primitive.GetPrimLattice(o_latt, o_pos, o_num, dictp)
-    #symmetry, pgt_type, axis = pointgp.GetPointGroup(prim_latt, num, pos, dictp)  # // pgt_type = [pgnum, pgtable, symbol, schoenf, holo, Laue]
+    """
+        Get space group
+        input  :  primitive lattice, symmetry operations, point group type, axis
+        return :  space group number, hall number, origin, 
+                  new lattice, new transformation matrix, center
+    """ 
 
     laue = pgt_type[5]
-    trans_matP = (np.transpose(axis)).copy()   # // P : vertical vectors
+    trans_matP = (np.transpose(axis)).copy()        # P : vertical vec
     # print(axis, trans_matP)
     if pgt_type[0] == 0:
         print('Error! No symmetry!')
-        return None, None, None, None, None, None    # // return 0
+        return None, None, None, None, None, None   
 
     #conv_latt = np.zeros((3, 3))
-    conv_latt = np.dot(axis, prim_latt)   # // axis = np.transpose(trans_matP)
+    conv_latt = np.dot(axis, prim_latt)   # axis = np.transpose(trans_matP)
 
-    if laue == 'LAUE1':      # // TRICLINIC
+    if laue == 'LAUE1':     # TRICLINIC
 
-        #   // get new transformation matrix
-        #   // change conv to min using niggli, then find trans_nat of prim to min
+        # get new transformation matrix
+        # change conventional one to minimum by Niggli Transformation
+        # then find trans_mat of primitive to minimum
         nigg = niggli.Niggli(conv_latt)
         min_latt = np.zeros((3, 3))
         if not (nigg == np.zeros((3, 3))).all():
@@ -382,20 +423,20 @@ def GetSpaceGroup(prim_latt, symmetry, pgt_type, axis):
             min_latt = -min_latt
 
         inv_latt = np.linalg.inv(np.transpose(prim_latt))
-        trans_matP = np.dot(inv_latt, np.transpose(min_latt))   # // here, P is vertical vec
+        trans_matP = np.dot(inv_latt, np.transpose(min_latt))   # P : vertical vec
         for i in range(3):
             for j in range(3):
                 if trans_matP[i, j] < 0.0:
                     trans_matP[i, j] = int(trans_matP[i, j] - 0.5)
                 else:
                     trans_matP[i, j] = int(trans_matP[i, j] + 0.5)
-        # // return trans_matP
+        # return trans_matP
 
-    if laue == 'LAUE2M':        # // MONOCLINIC
+    if laue == 'LAUE2M':    # MONOCLINIC
 
-        #   // get new transformation matrix
-        #   // change conv to min using delaunay, then find trans_nat of prim to min
-        flag, min_latt, delauP = delaunay.Delaunay(conv_latt, 1)   # // delauP is vertical
+        # get new transformation matrix
+        # change conv to min using delaunay, then find trans_nat of prim to min
+        flag, min_latt, delauP = delaunay.Delaunay(conv_latt, 1)   # delauP : vertical
         if flag:
             inv_latt = np.linalg.inv(prim_latt)
             trans_matP = np.transpose(np.dot(min_latt, inv_latt))
@@ -405,28 +446,32 @@ def GetSpaceGroup(prim_latt, symmetry, pgt_type, axis):
                         trans_matP[i, j] = int(trans_matP[i, j] - 0.5)
                     else:
                         trans_matP[i, j] = int(trans_matP[i, j] + 0.5)
-        # // return trans_matP
+        # return trans_matP
 
     center = None
     center, correct_mat = GetCenter(trans_matP, laue)
 
-    #print(trans_matP)
+    # print(trans_matP)
     print('correct matrix: \n', correct_mat)
     print('center: \n', center)
 
     new_trans_mat = trans_matP.copy()
     if center is not None:
-        new_trans_mat = np.dot(trans_matP, correct_mat)  # // trans_P, correct_mat and new_trans_mat are vertical vecs
-        conv_latt = np.dot(np.transpose(new_trans_mat), prim_latt)  # // conv_latt : horizontal vectors
+        
+        # trans_P, correct_mat and new_trans_mat are vertical vecs
+        new_trans_mat = np.dot(trans_matP, correct_mat)  
+        
+        # conv_latt : horizontal vectors
+        conv_latt = np.dot(np.transpose(new_trans_mat), prim_latt)  
 
-    #print('conven latt1:\n', conv_latt)
+    # print('conven latt1:\n', conv_latt)
     print('new trans mat: \n', new_trans_mat)
     if center == 'R_CENTER':
         conv_symm = GetConvSymm('PRIMITIVE', new_trans_mat, symmetry)
     else:
         conv_symm = GetConvSymm(center, new_trans_mat, symmetry)
 
-    #print('check numsym:', len(conv_symm))
+    # print('check numsym:', len(conv_symm))
     spgnum = None
     hallnum = None
     origin = np.zeros(3)
@@ -439,7 +484,7 @@ def GetSpaceGroup(prim_latt, symmetry, pgt_type, axis):
                 print('Congratulations! Find space group!')
                 hallnum = spg_to_hall_num[spgnum]
                 return spgnum + 1, hallnum, origin, new_latt, new_trans_mat, center
-                #break
+                # break
 
         print('Error! Cannot match any space group data!')
         return None, None, None, None, None, None

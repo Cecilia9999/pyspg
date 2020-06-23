@@ -1,30 +1,45 @@
 # pyspg
 
-A python version of spglib(Astushi Togo), which is used for finding symmetry of crystal.  
+A python version of spglib (Astushi Togo), which is used for finding symmetry of crystal.  
+
 
 
 ## Functions
 
-- delaunay.py :  Delauney transformation (find smallest cell)
+Main functions of pyspg are: 
 
-- niggli.py	:  Niggli transformation (find smallest cell)
+- Change input cell to standard (conventional/primitive) cell
 
-- primitive.py:  Find primitive cell
+- Find point group/ space goup of input cell
+
+- Other symmetry information of input cell
+
+
+
+## Modulus
+
+- delaunay.py 	:  Delauney transformation (find smallest cell)
+
+- niggli.py		:  Niggli transformation (find smallest cell)
+
+- primitive.py	:  Find primitive cell
 
 - pointgp.py	:  find point group of input cell
 
-- halldata.py :  Data of Hall symmetry operations
+- halldata.py 	:  Data of Hall symmetry operations
 
-- hallsymb.py :  Find Hall symbol
+- hallsymb.py 	:  Find Hall symbol
 
-- matchHall.py:  Match Hall symbol
+- matchHall.py	:  Match Hall symbol
 
 - spgroup.py	:  Find space group of input cell
 
-- Inputcell.py:  Handle input "POSCAR" format file and change it to standard/primitive cell
+- Inputcell.py	:  Handle input "POSCAR" format file and change it to standard/primitive cell
 
+- change of b	:  Change axis for some certain type (refer: spglib package, and update it)
 
 Some database and documents are in ./supports/
+
 
 
 ## Reference
